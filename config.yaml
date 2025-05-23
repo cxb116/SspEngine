@@ -1,0 +1,62 @@
+system:
+  db-type: mysql
+  router-prefix: ""
+  addr: 8888
+  iplimit-count: 15000
+  # 响应时长600毫秒
+  res-time: 600
+url:
+  vmurl: http://127.0.0.1:1111/vm?info=
+  cmurl: http://127.0.0.1:1111/cm?info=
+  dplmurl: http://127.0.0.1:1111/dplm?info=
+  dnsmurl: http://127.0.0.1:1111/dnsm?info=
+  insmurl: http://127.0.0.1:1111/insm?info=
+  acsmurl: http://127.0.0.1:1111/acsm?info=
+mysql:
+  port: "3306"
+  config: charset=utf8mb4&parseTime=True&loc=Local
+  db-name: ssp
+  username: root
+  password: root
+  path: 127.0.0.1
+  log-mode: error
+  max-idle-conns: 10
+  max-open-conns: 100
+  singular: false
+  log-zap: false
+kafka:
+  kafka_addr:
+  kafka_topic:
+  useCluster: false
+  clusterAddrs:
+kafka-list:
+  - name: kafka-
+
+
+
+redis:
+  name: ""
+  addr: 127.0.0.1:6379
+  password: ""
+  db: 0
+  useCluster: false
+  clusterAddrs:
+    - 172.21.0.3:7000
+    - 172.21.0.4:7001
+    - 172.21.0.2:7002
+redis-list:
+  - name: cache
+    addr: 127.0.0.1:6379
+    password: ""
+    db: 0
+    useCluster: false
+    clusterAddrs:
+      - 172.21.0.3:7000
+      - 172.21.0.4:7001
+      - 172.21.0.2:7002
+zerolog:
+  level: info
+  prefix:
+  format: console
+  director: log
+  retention-day: -30
