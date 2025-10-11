@@ -1,4 +1,4 @@
-package main
+package interfaces
 
 import "fmt"
 
@@ -23,9 +23,9 @@ func HandleRequest(request IRequest) {
 	fmt.Println(request.GetRequest())
 }
 
-func main() {
-	baseRequest := &BaseRequest{}
-	request := &Request{}
-	HandleRequest(baseRequest)
-	HandleRequest(request)
-}
+//func main() {
+//	baseRequest := &BaseRequest{}
+//	request := &Request{}
+//	HandleRequest(baseRequest)
+//	HandleRequest(request)
+//}
