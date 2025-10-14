@@ -1,8 +1,12 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/yourusername/ssp_grpc/internal/config"
 )
 
@@ -16,6 +20,20 @@ func main() {
 	}
 	fmt.Printf("load config file success: %s \n", load)
 
-	i := len("cff7b4d9d92cace1ff7ffaaa125480ba")
-	fmt.Println(i)
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	log.Print("hello world")
+
+	log.Debug().
+		Str("Scale", "833 cents").
+		Float64("Interval", 833.09).
+		Msg("Fibonacci is everywhere")
+
+	log.Debug().
+		Str("Name", "Tom").
+		Send()
+
+	log.Info().Msg("hello world")
+
+	err = errors.New("seems we have an error here")
+	log.Error().Err(err).Msg("00000000000000000000000000000000")
 }

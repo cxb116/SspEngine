@@ -1,0 +1,17 @@
+version: "1.0.0"
+
+server:
+  port: ":8888"
+
+database:
+  host: 127.0.0.1
+  port: 3306
+  username: root
+  password: root
+  dbname: ssp
+
+redis:
+  addr: localhost:6379
+  username: root
+  password:
+  db: 0
