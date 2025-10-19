@@ -10,7 +10,6 @@ import (
 )
 
 type Engine struct {
-	SspSlotInfo      *SspSlotInfo // 配置的预算数据(有多个)
 	EngineHttpClient *http.Client
 	sspRequest       interfaces.IRequest // ssp请求对象池化
 	ExitChan         chan struct{}       // 异步捕获链接关闭状态
@@ -20,7 +19,6 @@ type Engine struct {
 
 func newEngineHttpClient() *http.Client {
 	return &http.Client{
-
 		Timeout: time.Millisecond * 800,
 	}
 }
