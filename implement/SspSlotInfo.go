@@ -2,6 +2,8 @@ package implement
 
 import "sync"
 
+var SspSlotInfoMaps = make(map[int32]*SspSlotInfo)
+
 // 管理端配置的预算位置信息
 type SspSlotInfo struct {
 	SspSlotId                int32      // 广告位id

@@ -1,4 +1,4 @@
-module github.com/yourusername/ssp_grpc
+module github.com/cxb116/sspEngine
 
 go 1.24.0
 

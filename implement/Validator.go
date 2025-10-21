@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog/log"
-	"github.com/yourusername/ssp_grpc/interfaces"
+	"github.com/cxb116/sspEngine/interfaces"
 	"sync"
 )
 

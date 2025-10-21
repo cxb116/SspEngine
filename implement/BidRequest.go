@@ -1,7 +1,7 @@
 package implement
 
 import (
-	"github.com/yourusername/ssp_grpc/interfaces"
+	"github.com/cxb116/sspEngine/interfaces"
 	"sync"
 )
 

@@ -3,8 +3,8 @@ package implement
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/yourusername/ssp_grpc/internal/config"
-	"github.com/yourusername/ssp_grpc/internal/readerbyte"
+	"github.com/cxb116/sspEngine/internal/config"
+	"github.com/cxb116/sspEngine/internal/readerbyte"
 	"net/http"
 	"time"
 )

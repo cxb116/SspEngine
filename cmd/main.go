@@ -3,15 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/cxb116/sspEngine/implement"
+	"github.com/cxb116/sspEngine/internal/engine"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
-	"github.com/yourusername/ssp_grpc/implement"
-	"github.com/yourusername/ssp_grpc/internal/engine"
 
+	"github.com/cxb116/sspEngine/internal/cache"
+	"github.com/cxb116/sspEngine/internal/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/yourusername/ssp_grpc/internal/cache"
-	"github.com/yourusername/ssp_grpc/internal/config"
 )
 
 func main() {

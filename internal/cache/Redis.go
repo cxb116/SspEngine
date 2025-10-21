@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 	"github.com/redis/go-redis/v9"
-	"github.com/yourusername/ssp_grpc/internal/config"
+	"github.com/cxb116/sspEngine/internal/config"
 )
 
 func NewRedisClient(cfg *config.Redis) (*redis.Client, error) {
