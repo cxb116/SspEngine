@@ -11,8 +11,8 @@ database:
   dbname: ssp
 
 redis:
-  addr: 117.72.67.186:6379
-#  addr: 127.0.0.1:6379
+#  addr: 117.72.67.186:6379
+  addr: 127.0.0.1:6379
   username: root
   password:
   db: 0

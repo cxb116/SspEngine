@@ -2,5 +2,6 @@ package interfaces
 
 // 请求处理器
 type IRequestHandler interface {
-	AddRequest(request IRequest)
+	//AddRequest(request IRequest)
+	//SendRequestToTaskQueue(request IRequest)
 }
