@@ -9,12 +9,6 @@ import (
 	"time"
 )
 
-//var tempBufPool = sync.Pool{
-//	New: func() interface{} {
-//		return make([]readerbyte, 32*1024)
-//	},
-//}
-
 type Engine struct {
 	//RequestHandler   interfaces.IRequestHandler
 	EngineHttpClient *http.Client
@@ -26,7 +20,7 @@ type Engine struct {
 
 func newEngineHttpClient() *http.Client {
 	return &http.Client{
-		Timeout: time.Millisecond * 800,
+		Timeout: time.Millisecond * 850, // 超时时间850毫秒
 	}
 }
 
@@ -61,22 +55,27 @@ func SSP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	var bidRequest BidRequest
-	currentMilli := time.Now().UnixMilli() // 获取当前毫秒
 	if err := json.Unmarshal(reqBody, &bidRequest); err != nil {
 		http.Error(w, "invalid json: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// 将请求数据放入SspRequest对象池中
-	request := GetBidRequest()
-	request.RequestId = bidRequest.RequestId
-	request.AppId = bidRequest.AppId
-	request.RequestTime = currentMilli
+	// TODO 这里过于需要改一下
+	requestPool := GetBidRequest()
+	requestPool = &bidRequest
+	requestPool.RequestTime = time.Now().UnixMilli() // 获取当前毫秒
 
-	fmt.Printf("SSP Request Body: %s\n", request)
+	fmt.Printf("SSP Request Body: %s\n", requestPool)
 	// 将sspRequest 放入
-	GSspRequestHandler.SendRequestToTaskQueue(request)
+	GSspRequestHandler.SendRequestToTaskQueue(requestPool)
 	//PutSspRequest(request)   同一个对象归还多次，会在池中出现多个相同的对象指针，下次get获取池对象会发生数据竞争
+
+	// dsp 返回物料，通过公共管道来将物料返回给这个请求
+	//select {
+	//case <-time.After(850 * time.Millisecond):
+	//	http.Error(w, "timeout", http.StatusServiceUnavailable)
+	//}
 
 	// 5. 返回响应
 	response := map[string]interface{}{

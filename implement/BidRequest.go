@@ -28,6 +28,7 @@ func NewBidRequest() *BidRequest {
 func GetBidRequest() *BidRequest {
 	request := BidRequestPool.Get().(*BidRequest)
 	request.Reset()
+	//request.RequestTime = time.Now().UnixMilli() // 获取当前毫秒
 	return request
 }
 

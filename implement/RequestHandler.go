@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	WORK_POOL_SIZE = 10 // 池大小
-	MAX_CONN       = 10
+	WORK_POOL_SIZE = 100 // 池大小
+	MAX_CONN       = 100
 )
 
 var GSspRequestHandler *RequestHandler
@@ -115,7 +115,7 @@ func (requestHandler *RequestHandler) doRequestDispatcher(request interfaces.IBi
 	}()
 
 	log.Info().Msgf("doRequestDispence workerId:%d", workerId, "Req: ", request)
-	// TODO 处理请求request
+	// TODO 处理请求request,过滤不合格的请求数据
 	validateStatus, err := ValidateRequest(request)
 	if err != nil {
 		fmt.Println("validateRequest err:", err)
@@ -125,7 +125,7 @@ func (requestHandler *RequestHandler) doRequestDispatcher(request interfaces.IBi
 		fmt.Println("validateRequest err: invalid request")
 		return -1, errors.New("invalid request")
 	}
-	// TODO 1 从 SspSlotInfoMaps 中获取管理端配置信息
-	// TODO 2 和请求id数据匹配
+
+	// TODO  和dsp数据匹配
 	return validateStatus, err
 }
