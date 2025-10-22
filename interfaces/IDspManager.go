@@ -1,7 +1,7 @@
 package interfaces
 
-type IDSP interface {
-	GetDspId() int64
+type IDspManager interface {
+	GetDspId() int32
 	Match(bidRequest IBidRequest) bool
 	Bid(bidRequest IBidRequest) (IBidResponse, error)
 }

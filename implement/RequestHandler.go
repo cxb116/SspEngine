@@ -83,11 +83,10 @@ func (requestHandler *RequestHandler) useWorker() int32 {
 		fmt.Println("freeWorker: ", requestHandler.FreeWorkers)
 		return workerId
 	}
-
 	return -1 // 没有空闲的workerId
 }
 
-func (requestHandler *RequestHandler) releaseWorker(workerId int32) {
+func (requestHandler *RequestHandler) releaseWorkerId(workerId int32) {
 	requestHandler.FreeWorkerMutex.Lock()
 	defer requestHandler.FreeWorkerMutex.Unlock()
 	requestHandler.FreeWorkers[workerId] = struct{}{}
@@ -101,14 +100,16 @@ func (requestHandler *RequestHandler) StartOnWorker(workerId int32, taskQueue ch
 		case request, ok := <-taskQueue:
 			if !ok {
 				// 归还workerId
-				requestHandler.releaseWorker(workerId)
+				requestHandler.releaseWorkerId(workerId)
 				return
 			}
-			switch req := request.(type) {
+			switch req := request.(type) { //后续补充多种形式的req
 			case interfaces.IBidRequest: // Client message request
 				requestHandler.doRequestDispatcher(req, workerId)
-				requestHandler.releaseWorker(workerId)
+				requestHandler.releaseWorkerId(workerId)
 			}
+			//default:
+			// io 阻塞会占用线程 TODO 待验证是否需要 。。。
 		}
 	}
 }
@@ -133,5 +134,6 @@ func (requestHandler *RequestHandler) doRequestDispatcher(request interfaces.IBi
 	}
 	log.Info().Msgf("====================================== 处理完成===================================")
 	// TODO  交给dsp 匹配和处理dsp请求信息
+
 	return validateStatus, err
 }

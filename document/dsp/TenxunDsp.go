@@ -10,11 +10,12 @@ type TenxunDsp struct {
 	implement.DspManager
 }
 
-func (b *TenxunDsp) GetDspId() int64 {
+func (b *TenxunDsp) GetDspId() int32 {
 	log.Print("获取预算TenxunDsp的DspId")
 	return 0
 }
 func (b *TenxunDsp) Match(bidRequest interfaces.IBidRequest) bool {
+	maps := b.DspMaps // 拿到了注册的预算map
 	log.Print("获取TenxunDsp 匹配信息")
 	return true
 }

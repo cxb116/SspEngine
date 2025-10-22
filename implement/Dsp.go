@@ -3,10 +3,21 @@ package implement
 import "github.com/cxb116/sspEngine/interfaces"
 
 type Dsp struct {
-	SspSlotInfoMaps map[int32]*SspSlotInfo // key=SspSlotId value=*SspSlotInfo
-	DspRequest      interfaces.IDspRequest
-	DspResponse     interfaces.IDspResponse
+	SspSlotInfoMaps map[int32]*SspSlotInfo  // key=SspSlotId value=*SspSlotInfo
+	DspRequest      interfaces.IDspRequest  // 请求dsp
+	DspResponse     interfaces.IDspResponse // dsp响应
+	BidRequest      interfaces.IDspRequest  // 请求ssp
+	BidResponse     interfaces.IDspResponse // ssp响应
+
 }
+
+//func (dsp *Dsp) GetDspId(request interfaces.IBidRequest) int32 {
+//	sspSlotId := request.(BidRequest).SspSlotId
+//	if dsp.SspSlotInfoMaps != nil && dsp.SspSlotInfoMaps[sspSlotId] != nil {
+//		return sspSlotId
+//	}
+//	return -1
+//}
 
 func (dsp *Dsp) CreateReqMsg() string { // 获取请求+ 管理端配置的信息
 	return "CreateReqMsg"
