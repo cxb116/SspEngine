@@ -2,7 +2,7 @@ package implement
 
 import "sync"
 
-//TODO 还有问题，后续要在chain中输入ua和model,然后根据model 判定ua是否一致且合法,caid和idfa,等参数联合校验等问题
+//TODO 还有问题，后续要在chain中输入User-Agent和model,然后根据model判定User-Agent是否一致且合法,caid和idfa,等参数联合校验等问题
 // BidRequest 验证是否合格的策略链路
 
 type Chain []string

@@ -103,7 +103,7 @@ func ValidateRequest(request interfaces.IBidRequest) (int, error) {
 //	} else {
 //		return status, err
 //	}
-// TODO 加入校验链,例如先判断model是否合理，然后判断ua,还有caid和idfa二选一情况
+// TODO 加入校验链,例如先判断model是否合理，然后根据model去判断User-Agent是否合法,还有caid和idfa二选一情况
 func ValidateWithChain(chain Chain, request interfaces.IBidRequest) (int, error) {
 	onceRegistry.Do(registerBuiltins)
 	for _, chainName := range chain {

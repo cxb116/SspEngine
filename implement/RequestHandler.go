@@ -22,7 +22,7 @@ func init() {
 
 type RequestHandler struct {
 	// TODO 对象SspSlotInfoMaps 初始化完成但是没有数据
-	SspSlotInfoMaps  map[int32]*SspSlotInfo // key=SspSlotId value=*SspSlotInfo
+	//SspSlotInfoMaps  map[int32]*SspSlotInfo // key=SspSlotId value=*SspSlotInfo
 	SspRequest       interfaces.IBidRequest // 请求数据
 	WorkerPoolSize   int32                  // 业务工作Worker池的数量
 	MaxWorkerTaskLen int32                  // 业务工作Worker对应负责的任务队列最大任务存储数量
@@ -35,8 +35,6 @@ type RequestHandler struct {
 
 func NewRequestHandler() *RequestHandler {
 	var freeWorkers map[int32]struct{}
-	//var extraFreeWorkers map[int32]struct{}
-
 	freeWorkers = make(map[int32]struct{}, WORK_POOL_SIZE)
 	for i := int32(0); i < WORK_POOL_SIZE; i++ {
 		freeWorkers[i] = struct{}{}
@@ -48,7 +46,7 @@ func NewRequestHandler() *RequestHandler {
 	//}
 	TaskQueueLen := MAX_CONN
 	return &RequestHandler{
-		SspSlotInfoMaps:  make(map[int32]*SspSlotInfo, 100),
+		//SspSlotInfoMaps:  make(map[int32]*SspSlotInfo, 100),
 		SspRequest:       NewBidRequest(),
 		WorkerPoolSize:   WORK_POOL_SIZE,
 		MaxWorkerTaskLen: MAX_CONN,
@@ -74,19 +72,25 @@ func (requestHandler *RequestHandler) SendRequestToTaskQueue(bidRequest interfac
 	//PutSspRequest(sspRequest) //
 }
 
+// 获取workerId
 func (requestHandler *RequestHandler) useWorker() int32 {
 	var workerId int32
 	requestHandler.FreeWorkerMutex.Lock()
+	defer requestHandler.FreeWorkerMutex.Unlock()
 	// 尝试从工作线程中取出人一个空闲的 workerId
 	for workerId = range requestHandler.FreeWorkers {
 		delete(requestHandler.FreeWorkers, workerId)
 		fmt.Println("freeWorker: ", requestHandler.FreeWorkers)
-		requestHandler.FreeWorkerMutex.Unlock()
 		return workerId
 	}
-	requestHandler.FreeWorkerMutex.Unlock()
 
 	return -1 // 没有空闲的workerId
+}
+
+func (requestHandler *RequestHandler) releaseWorker(workerId int32) {
+	requestHandler.FreeWorkerMutex.Lock()
+	defer requestHandler.FreeWorkerMutex.Unlock()
+	requestHandler.FreeWorkers[workerId] = struct{}{}
 }
 
 func (requestHandler *RequestHandler) StartOnWorker(workerId int32, taskQueue chan interfaces.IBidRequest) {
@@ -96,12 +100,14 @@ func (requestHandler *RequestHandler) StartOnWorker(workerId int32, taskQueue ch
 		// 有消息则取出队列的request,并执行绑定业务方法
 		case request, ok := <-taskQueue:
 			if !ok {
-				//临时创建的worker, 是通过关闭taskQueue 来销毁当前worker
+				// 归还workerId
+				requestHandler.releaseWorker(workerId)
 				return
 			}
 			switch req := request.(type) {
 			case interfaces.IBidRequest: // Client message request
 				requestHandler.doRequestDispatcher(req, workerId)
+				requestHandler.releaseWorker(workerId)
 			}
 		}
 	}
@@ -125,7 +131,7 @@ func (requestHandler *RequestHandler) doRequestDispatcher(request interfaces.IBi
 		fmt.Println("validateRequest err: invalid request")
 		return -1, errors.New("invalid request")
 	}
-
-	// TODO  和dsp数据匹配
+	log.Info().Msgf("====================================== 处理完成===================================")
+	// TODO  交给dsp 匹配和处理dsp请求信息
 	return validateStatus, err
 }
