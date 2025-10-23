@@ -1,10 +1,29 @@
 package implement
 
 import (
+	"fmt"
 	"sync"
 )
 
-var SspSlotInfoMaps = make(map[int32]*SspSlotInfo)
+//var SspSlotInfoMaps = make(map[int32]*SspSlotInfo)
+
+var (
+	GSspSlotInfoBindings *SspSlotInfoBindings
+	once                 sync.Once
+)
+
+func GetSspSlotInfoBindings() *SspSlotInfoBindings {
+	once.Do(func() {
+		GSspSlotInfoBindings = &SspSlotInfoBindings{}
+		GSspSlotInfoBindings.Init()
+	})
+	return GSspSlotInfoBindings
+}
+
+// 初始化绑定隐射，可重复调用刷新数据
+func (this *SspSlotInfoBindings) Init() {
+	this.UpdateBinding()
+}
 
 // 管理端配置的预算位置信息
 type SspSlotInfo struct {
@@ -33,8 +52,23 @@ type SspSlotInfo struct {
 	rwLock                   sync.RWMutex
 
 	// TODO 还有 deeplink 是否支持等规则 ...
-
 }
 
-// 问题1 数据读出后如何和请求的数据匹配
-// 问题2 在对接预算文档里面拿到的这个数据如何是后台管理端配置的那个
+type SspSlotInfoBindings struct {
+	SlotBindingMaps sync.Map
+	SspSlotInfos    []SspSlotInfo
+}
+
+// 用媒体广告位sspSlotId 和 dsp广告位 budgetSlotid绑定
+// 当有新配置下发（Redis 订阅或配置文件变化）  redis: key = sspSlotId:AppId
+func (this *SspSlotInfoBindings) UpdateBinding() {
+	for _, biding := range this.SspSlotInfos {
+		key := fmt.Sprintf("%d:%s", biding.SspSlotId, biding.AppId)
+		this.SlotBindingMaps.Store(key, biding)
+	}
+}
+
+// 动态跟新配置方案 订阅/发布者模式
+func (this *SspSlotInfoBindings) onConfigUpdate(msg string) bool {
+	return false
+}

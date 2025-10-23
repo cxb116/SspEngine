@@ -22,7 +22,6 @@ var (
 func init() {
 	onceRegistry.Do(registerBuiltins)
 	RegisterChain("request_id", Chain{"request 长度不小于36"})
-	fmt.Println("llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll")
 }
 
 // 注册时内置validator 单例
