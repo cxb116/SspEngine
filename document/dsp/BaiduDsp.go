@@ -2,26 +2,32 @@ package dsp
 
 import (
 	"errors"
+	"fmt"
 	"github.com/cxb116/sspEngine/implement"
+	"github.com/cxb116/sspEngine/implement/registry"
 	"github.com/cxb116/sspEngine/interfaces"
 )
 
 type BaiduDsp struct {
-	*implement.DspHandlerManager
+	DspCode    string
+	BidRequest interfaces.IBidRequest
+	Slot       interfaces.ISspSlotInfo
 }
 
-func NewDspBaiduDsp() *BaiduDsp {
-	return &BaiduDsp{
-		DspHandlerManager: &implement.DspHandlerManager{
-			DspCode: "Baidu",
-		},
-	}
+func (dsp *BaiduDsp) RequestBid() (interfaces.IBidResponse, error) {
+	fmt.Printf("调用百度 DSP 请求逻辑...")
+	return &implement.BidResponse{}, errors.New("百度调用异常")
+}
+func (dsp *BaiduDsp) GetDspCode() string {
+	return dsp.DspCode
 }
 
-func (handler *BaiduDsp) RequestBid(request interfaces.IBidRequest) (interfaces.IBidResponse, error) {
-	return nil, errors.New("BaiduDsp失败")
-}
-
-func (this *BaiduDsp) GetDspCode() string {
-	return this.DspCode
+func init() {
+	registry.Register("baidu", func(request interfaces.IBidRequest, slot interfaces.ISspSlotInfo) registry.DspHandler {
+		return &BaiduDsp{
+			DspCode:    "baidu",
+			BidRequest: request,
+			Slot:       slot,
+		}
+	})
 }

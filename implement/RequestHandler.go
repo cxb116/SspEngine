@@ -47,12 +47,11 @@ func NewRequestHandler() *RequestHandler {
 	TaskQueueLen := MAX_CONN
 	return &RequestHandler{
 		//SspSlotInfoMaps:  make(map[int32]*SspSlotInfo, 100),
-		SspRequest:       NewBidRequest(),
+		//SspRequest:       NewBidRequest(),
 		WorkerPoolSize:   WORK_POOL_SIZE,
 		MaxWorkerTaskLen: MAX_CONN,
 		FreeWorkers:      freeWorkers,
-		//ExtraFreeWorkers: extraFreeWorkers,
-		TaskQueue: make([]chan interfaces.IBidRequest, TaskQueueLen),
+		TaskQueue:        make([]chan interfaces.IBidRequest, TaskQueueLen),
 	}
 }
 
@@ -116,11 +115,11 @@ func (requestHandler *RequestHandler) StartOnWorker(workerId int32, taskQueue ch
 }
 
 func (requestHandler *RequestHandler) doRequestDispatcher(request interfaces.IBidRequest, workerId int32) (int, error) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("workerId %s doRequestDispence panic err:%v", workerId, err)
-		}
-	}()
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		log.Printf("workerId %s doRequestDispence panic err:%v", workerId, err)
+	//	}
+	//}()
 
 	log.Info().Msgf("doRequestDispence workerId:%d", workerId, "Req: ", request)
 	// TODO 处理请求request,过滤不合格的请求数据
@@ -133,27 +132,42 @@ func (requestHandler *RequestHandler) doRequestDispatcher(request interfaces.IBi
 		fmt.Println("validateRequest err: invalid request")
 		return -1, errors.New("invalid request")
 	}
-	log.Info().Msgf("======================================IBidRequest 处理完成===================================")
 	// TODO  交给dsp 匹配和处理dsp请求信息
-
+	response, err := requestHandler.DisPatchBidRequest(request)
+	if err != nil {
+		log.Error().Msgf("disPatchBidRequest err:%v %v", err, response)
+		return -1, errors.New("disPatchBidRequest err")
+	}
 	return validateStatus, err
 }
 
 func (requestHandler *RequestHandler) DisPatchBidRequest(request interfaces.IBidRequest) (response interfaces.IBidResponse, err error) {
 	// 组装redis的key,key格式 SspSlotId:AppId
-	key := fmt.Sprintf("%d:%s", request.(BidRequest).SspSlotId, request.(BidRequest).AppId)
+	key := fmt.Sprintf("%d:%s", request.GetSspSlotId(), request.GetAppId())
+	log.Info().Msgf("DisPatchBidRequest key:%s\n", key)
 	// 通过key在SlotBidingMaps中检索
 	binding, ok := GetSspSlotInfoBindings().SlotBindingMaps.Load(key)
 	if !ok {
 		return nil, errors.New("Slot binding not exist")
 	}
-	// 这里是将管理端配置信息传入DspHandler,找到dspHandler
-	dspHandler := GetDspHandler(binding.(SspSlotInfo).DspCompany.DspCode)
-	if dspHandler == nil {
-		return nil, errors.New("Slot handler not exist")
+	sspSlotInfo, ok := binding.(SspSlotInfo)
+	if !ok {
+		return nil, errors.New("Slot binding not exist")
 	}
-	// 分发请求
 
-	dspHandler.RequestBid(request)
+	resp, err := DspDispatch(request, sspSlotInfo)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+
+	// 这里是将管理端配置信息传入DspHandler,找到dspHandler
+	//dspHandler := GetDspHandler(binding.(SspSlotInfo).DspCompany.DspCode)
+	//if dspHandler == nil {
+	//	return nil, errors.New("Slot handler not exist")
+	//}
+	//// 分发请求
+	//
+	//dspHandler.RequestBid(request)
 	return nil, errors.New("请求分发")
 }

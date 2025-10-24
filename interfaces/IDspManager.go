@@ -9,11 +9,11 @@ package interfaces
 //   在请求时快速路由到正确的预算 handler
 //   流量分发路由  +   策略映射 + 动态扩展
 
-type IDspHandlerManager interface {
-	RequestBid(reqeuest IBidRequest) (IBidResponse, error)
-
-	GetDspCode() string
-}
+//type IDspHandlerManager interface {
+//	RequestBid() (IBidResponse, error)
+//
+//	GetDspCode() string
+//}
 
 //type IDspManager interface {
 //	GetDspId() int32

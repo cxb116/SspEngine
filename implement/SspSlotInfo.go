@@ -72,3 +72,7 @@ func (this *SspSlotInfoBindings) UpdateBinding() {
 func (this *SspSlotInfoBindings) onConfigUpdate(msg string) bool {
 	return false
 }
+
+func (sspSlotInfo *SspSlotInfo) GetDspCode() string {
+	return sspSlotInfo.DspCompany.DspCode
+}

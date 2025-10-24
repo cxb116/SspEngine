@@ -1,7 +1,8 @@
 package implement
 
 import (
-	"errors"
+	"fmt"
+	"github.com/cxb116/sspEngine/implement/registry"
 	"github.com/cxb116/sspEngine/interfaces"
 )
 
@@ -26,32 +27,51 @@ import (
 //      3 每个预算都会加一个dspCode用来和管理端配置的dspCode去匹配，然后可以通过继承Dsp子类就可以获取到所有和dspCode有关的管理端配置数据
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var dspRegistry = make(map[string]interfaces.IDspHandlerManager)
-
-// 通过 dspCode 将handler 注册到 dspRegistry 中
-func RegisterDsp(handler interfaces.IDspHandlerManager) {
-	dspRegistry[handler.GetDspCode()] = handler
+//
+func DspDispatch(req interfaces.IBidRequest, slot SspSlotInfo) (interfaces.IBidResponse, error) {
+	registryHandler := registry.Get(slot.DspCompany.DspCode, req, &slot)
+	if registryHandler == nil {
+		return nil, fmt.Errorf("未找到 DSP: %s", slot.DspCompany.DspCode)
+	}
+	return registryHandler.RequestBid()
 }
 
-// 通过dspCode获取 对接文档的信息
-func GetDspHandler(dspCode string) interfaces.IDspHandlerManager {
-	return dspRegistry[dspCode]
-}
-
-type DspHandlerManager struct {
-	DspCode string
-}
-
-// 请求响应在这一个方法里面转换吗
-func (this *DspHandlerManager) RequestBid(reqeuest interfaces.IBidRequest) (interfaces.IBidResponse, error) {
-	return &BidRequest{}, errors.New("先退出吧")
-}
-
-func (this *DspHandlerManager) GetDspCode() string {
-
-	return this.DspCode
-}
+//func initDSP() {
+//	RegisterDsp("Baidu", func(req interfaces.IBidRequest, slot *SspSlotInfo) interfaces.IDspHandlerManager {
+//		return dsp.NewDspBaiduDsp(req, slot)
+//	})
+//}
+//
+//var dspRegistry = make(map[string]func(req interfaces.IBidRequest, slot *SspSlotInfo) interfaces.IDspHandlerManager)
+//
+//// 通过 dspCode 将handler 注册到 dspRegistry 中
+//func RegisterDsp(dspCode string, register func(req interfaces.IBidRequest, slot *SspSlotInfo) interfaces.IDspHandlerManager) {
+//	dspRegistry[dspCode] = register
+//}
+//
+//// 通过dspCode获取 对接文档的信息
+//func GetDspHandler(dspCode string, request interfaces.IBidRequest, slot *SspSlotInfo) interfaces.IDspHandlerManager {
+//	if dspRegistry[dspCode] != nil {
+//		return dspRegistry[dspCode](request, slot)
+//	}
+//	return nil
+//}
+//
+//type DspHandlerManager struct {
+//	DspCode     string
+//	BidRequest  interfaces.IBidRequest
+//	SspSlotInfo *SspSlotInfo
+//}
+//
+//// 请求响应在这一个方法里面转换吗
+//func (this *DspHandlerManager) RequestBid() (interfaces.IBidResponse, error) {
+//	return &BidRequest{}, errors.New("先退出吧")
+//}
+//
+//func (this *DspHandlerManager) GetDspCode() string {
+//
+//	return this.DspCode
+//}
 
 //// 先写一个dsp管理者////////////////////////////////////////////////////////////////
 //type DspManager struct {
