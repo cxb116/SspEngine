@@ -34,6 +34,9 @@ func newEngineWithConfig(config *config.Config) *Engine {
 
 }
 
+// 提高连接性能最简单且最有效的方法之一是启用 HTTP 持久连接，也称为 Keep-Alive。
+//通过减少连接管理开销以及接口双方 CPU 利用率，这对整体性能产生深远影响
+// TODO 后续提供,压缩json, proto 等这些形式在传输时间和带宽方面可能更高效
 func ServerEngine(config *config.Config) {
 	newEngineWithConfig(config)
 	http.HandleFunc("/", SSP)
