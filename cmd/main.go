@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	_ "github.com/cxb116/sspEngine/document/dsp" // 匿名导入,原因dsp包init() 无法执行
 	"github.com/cxb116/sspEngine/implement"
 	"github.com/cxb116/sspEngine/internal/engine"
 	"github.com/go-redsync/redsync/v4"

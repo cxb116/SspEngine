@@ -12,9 +12,22 @@ var (
 	once                 sync.Once
 )
 
+var sspSlots = []SspSlotInfo{
+	{
+		SspSlotId: 111,
+		AppId:     "222",
+		DspCompany: DspCompany{
+			RequestUrl: "http://www.baidu.com",
+			DspCode:    "baidu",
+		},
+	},
+}
+
 func GetSspSlotInfoBindings() *SspSlotInfoBindings {
 	once.Do(func() {
-		GSspSlotInfoBindings = &SspSlotInfoBindings{}
+		GSspSlotInfoBindings = &SspSlotInfoBindings{
+			SspSlotInfos: sspSlots,
+		}
 		GSspSlotInfoBindings.Init()
 	})
 	return GSspSlotInfoBindings

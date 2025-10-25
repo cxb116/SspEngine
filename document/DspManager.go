@@ -1,23 +1,12 @@
-package implement
+package document
 
 import (
 	"fmt"
-	"github.com/cxb116/sspEngine/implement/registry"
 	"github.com/cxb116/sspEngine/interfaces"
 )
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ##################################################如何高效的将流量分派到各个预算 #############################################//
-//思路：1将预算注册到maps中，然后通过广告位置id来绑定这个预算 (这个有点冲突感觉有点麻烦)
-//      2 备用方案 通过管理端自定义预算名称绑定,
-// 具体步骤：
-//   	1 创建dspManager 来存储dsp预算，DspManager 不能防止频繁创建销毁这个对象，因使用单例模式
-//          1) dsp如何实现: dsp文档对接需要管理端的配置数据等，还需要预算请求体，预算响应体，预算响应时间(防止超时)
-//   	    2) dsp实例化，首先在main加载之前将管理端设备信息加载到 Dsp 对象的SspSlotInfoMaps map[int64]*SspSlotInfo,中
-//          3) 例如要对接TenxunDsp文档,只需要继承dsp,然后重写dsp方法，能够实现文档的对接功能
-//          4）对接完成后,将dsp加入DspManager中的dspMaps,通过请求id检索然后执行id 所对应的预算
-//	 	2 有个问题是没有和媒体绑定的dsp预算是没有广告位id的
-//     解决办法: dsp配置信息是通过管理端来配置的,我可以在管理端配置信息后通过redis的订阅发布者模式来推动引擎跟新DspManager信息
 //
 // 思路：2 备用方案 通过管理端自定义预算名称绑定 (频繁在DspMaps中添加删除的修改感觉会有问题，所以在初始化的时候就将所有预算全部添加进去)
 // 目标：RequestHandler通过BidRequest,在DspManager去调度预算，dspManager可以像插件一样实现插拔。
@@ -27,13 +16,37 @@ import (
 //      3 每个预算都会加一个dspCode用来和管理端配置的dspCode去匹配，然后可以通过继承Dsp子类就可以获取到所有和dspCode有关的管理端配置数据
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-func DspDispatch(req interfaces.IBidRequest, slot SspSlotInfo) (interfaces.IBidResponse, error) {
-	registryHandler := registry.Get(slot.DspCompany.DspCode, req, &slot)
+
+func DspDispatchManager(req interfaces.IBidRequest, slot interfaces.ISspSlotInfo) (interfaces.IBidResponse, error) {
+	registryHandler := GetDspDoc(slot.GetDspCode(), req, slot)
 	if registryHandler == nil {
-		return nil, fmt.Errorf("未找到 DSP: %s", slot.DspCompany.DspCode)
+		return nil, fmt.Errorf("未找到 DSP: %s", slot.GetDspCode())
 	}
 	return registryHandler.RequestBid()
+}
+
+type DspHandlerCreator func(request interfaces.IBidRequest, slot interfaces.ISspSlotInfo) DspHandler
+
+type DspHandler interface {
+	RequestBid() (interfaces.IBidResponse, error)
+	GetDspCode() string
+}
+
+var dspRegistryMaps = make(map[string]DspHandlerCreator)
+
+func DspRegister(dspCode string, creator DspHandlerCreator) {
+	if _, exist := dspRegistryMaps[dspCode]; !exist {
+		dspRegistryMaps[dspCode] = creator
+	}
+}
+
+// 通过dspCode去获取 BidRequest和SspSlotInfo
+// 获取预算对接文档
+func GetDspDoc(dspCode string, request interfaces.IBidRequest, slot interfaces.ISspSlotInfo) DspHandler {
+	if creator, exist := dspRegistryMaps[dspCode]; exist {
+		return creator(request, slot)
+	}
+	return nil
 }
 
 //func initDSP() {
@@ -63,7 +76,7 @@ func DspDispatch(req interfaces.IBidRequest, slot SspSlotInfo) (interfaces.IBidR
 //	SspSlotInfo *SspSlotInfo
 //}
 //
-//// 请求响应在这一个方法里面转换吗
+//// 请求响应在这一个方法里面转换
 //func (this *DspHandlerManager) RequestBid() (interfaces.IBidResponse, error) {
 //	return &BidRequest{}, errors.New("先退出吧")
 //}

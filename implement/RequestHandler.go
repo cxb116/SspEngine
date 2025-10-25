@@ -3,6 +3,8 @@ package implement
 import (
 	"errors"
 	"fmt"
+
+	"github.com/cxb116/sspEngine/document"
 	"github.com/cxb116/sspEngine/interfaces"
 	"github.com/rs/zerolog/log"
 	"sync"
@@ -115,11 +117,11 @@ func (requestHandler *RequestHandler) StartOnWorker(workerId int32, taskQueue ch
 }
 
 func (requestHandler *RequestHandler) doRequestDispatcher(request interfaces.IBidRequest, workerId int32) (int, error) {
-	//defer func() {
-	//	if err := recover(); err != nil {
-	//		log.Printf("workerId %s doRequestDispence panic err:%v", workerId, err)
-	//	}
-	//}()
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("workerId %s doRequestDispence panic err:%v", workerId, err)
+		}
+	}()
 
 	log.Info().Msgf("doRequestDispence workerId:%d", workerId, "Req: ", request)
 	// TODO 处理请求request,过滤不合格的请求数据
@@ -154,8 +156,8 @@ func (requestHandler *RequestHandler) DisPatchBidRequest(request interfaces.IBid
 	if !ok {
 		return nil, errors.New("Slot binding not exist")
 	}
-
-	resp, err := DspDispatch(request, sspSlotInfo)
+	// 寻找dsp对接文档
+	resp, err := document.DspDispatchManager(request, &sspSlotInfo)
 	if err != nil {
 		return nil, err
 	}
